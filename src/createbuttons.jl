@@ -1,5 +1,5 @@
 function carica(filename)
-    file = load(filename) #streak_table
+    file = FileIO.load(filename) #streak_table
     table = file[collect(keys(file))[1]]
     table
 end
@@ -12,7 +12,6 @@ function options_traces(subdata)
             trace_dict[string(name)] = name
         end
     end
-    # hbox(values(trace_dict)...)
     dropdown(trace_dict)
 end
 
@@ -24,7 +23,6 @@ function options_allignments(subdata)
         end
     end
     dropdown(allignment_dict)
-    #hbox(values(allignment_dict)...)
 end
 
 function options_mice(subdata)
@@ -43,4 +41,21 @@ function options_protocols(subdata)
         #on(t -> plt[] = histogram(subdata[name]), observe(button_dict[name]))
     end
     vbox(values(protocol_dict)...)
+end
+
+function options_genotypes(subdata)
+    empty!(genotype_dict)
+    for name in union(subdata[:Gen])
+        genotype_dict[name] = checkbox(label = string(name))
+        #on(t -> plt[] = histogram(subdata[name]), observe(button_dict[name]))
+    end
+    vbox(values(genotype_dict)...)
+end
+
+function option_days(subdata)
+    empty!(days_dict)
+    for day in sort(union(subdata[:Day]))
+        days_dict[string(day)] = day
+    end
+    dropdown(days_dict)
 end

@@ -1,15 +1,16 @@
 #module PhotometryGui
 
-using InteractBulma, Plots, Blink, Observables, DataFrames, JuliaDBMeta
-using CSSUtil, DataStructures, WebIO,FileIO, ShiftedArrays, Query
+using InteractBulma, Plots, Blink, Observables, JLD2, DataFrames, JuliaDBMeta
+using CSSUtil, DataStructures, WebIO, FileIO, ShiftedArrays, Query
 
 include("createbuttons.jl");
 include("plotsetting.jl");
+include("selecteddata.jl");
 
 filepath = filepicker();
-filename = observe(filepath)
+filename = observe(filepath);
 data = Observable{Any}(DataFrame())
-on(t -> (data[] = carica(t)), filename)
+on(t -> (data[] = carica(t)), filename);
 
 subdata = Observable{Any}(DataFrame())
 on(t -> (subdata[] = copy(data[])), filename)
@@ -21,10 +22,6 @@ on(t ->(traces[] = options_traces(t)),data);
 allignments = Observable{Any}(dropdown(OrderedDict("put"=>1,"something" =>2)))
 allignment_dict = OrderedDict()
 on(t ->(allignments[] = options_allignments(t)),data);
-
-shiftButton = (button("Shift"));
-shifter = observe(shiftButton);
-on(t -> (subdata[] = shiftdata(data[])),shifter);
 
 start = InteractBase.input()
 stop = InteractBase.input()
@@ -42,22 +39,18 @@ protocols = Observable{Any}(checkbox())#mice=Observable{Any}(button())
 protocol_dict = OrderedDict()
 on(t -> (protocols[] = options_protocols(t)), data);
 
-ui =(vbox(filepath, hbox(start, stop),hbox(traces, allignments,shiftButton),hbox(plotButton, plt, mice, protocols)))
+genotypes = Observable{Any}(checkbox())#mice=Observable{Any}(button())
+genotype_dict = OrderedDict()
+on(t -> (genotypes[] = options_genotypes(t)), data);
+
+daystart = Observable{Any}(dropdown(OrderedDict("start"=>1,"date" =>2)))
+daystop =  Observable{Any}(dropdown(OrderedDict("stop"=>1,"date" =>2)))
+days_dict = OrderedDict()
+on(t -> (daystart[] = option_days(t)), data)
+on(t -> (daystop[] = option_days(t)), data)
+
+
+ui =(vbox(filepath, hbox(start, stop),hbox(traces, allignments),hbox(plotButton, plt, mice, protocols, genotypes,vbox(daystart,daystop))))
 w = Window()
 body!(w, ui)
 #end #module
-##
-
-##
-buttons = Observable{Any}(button())
-button_dict = OrderedDict()
-on(t -> (buttons[] = makebuttons(t)), data);
-function makebuttons(subdata)
-    empty!(button_dict)
-    for name in names(subdata)
-        button_dict[name] = button(string(name))
-        on(t -> plt[] = histogram(subdata[name]), observe(button_dict[name]))
-    end
-    vbox(values(button_dict)...)
-end
-#INDS = parse(Int64,observe(start)[]):parse(Int64,observe(stop)[])
