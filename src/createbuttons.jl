@@ -4,58 +4,66 @@ function carica(filename)
     table
 end
 
-function options_traces(subdata)
-    empty!(trace_dict)
-    for name in names(subdata)
-        if eltype(subdata[name])<:ShiftedArray
+function options_traces(data)
+    dict = OrderedDict()
+    for name in names(data)
+        if eltype(data[name])<:ShiftedArray
             #trace_dict[name] = button(string(name))
-            trace_dict[string(name)] = name
+            dict[string(name)] = name
         end
     end
-    dropdown(trace_dict)
+    dict
 end
 
-function options_allignments(subdata)
-    empty!(allignment_dict)
-    for name in names(subdata)
+function options_allignments(data)
+    dict = OrderedDict()
+    for name in names(data)
         if (contains(string(name),"In_")||contains(string(name),"Out_"))
-            allignment_dict[string(name)] = name
+            dict[string(name)] = name
         end
     end
-    dropdown(allignment_dict)
+    dict
 end
 
-function options_mice(subdata)
-    empty!(mice_dict)
-    for name in union(subdata[:MouseID])
-        mice_dict[name] = checkbox(label = string(name))
-        #on(t -> plt[] = histogram(subdata[name]), observe(button_dict[name]))
+
+function options_checkboxes(data,column)
+    dict = OrderedDict()
+    for name in union(data[column])
+        dict[string(name)] = string(name)
     end
-    vbox(values(mice_dict)...)
+    dict
+end
+# function options_mice(data)
+#     dict = OrderedDict()
+#     for name in union(data[:MouseID])
+#         dict[name] = checkbox(label = string(name))
+#         #on(t -> plt[] = histogram(data[name]), observe(button_dict[name]))
+#     end
+#     vbox(values(dict)...)
+# end
+
+function options_protocols(data)
+    dict = OrderedDict()
+    for name in union(data[:Protocol])
+        dict[name] = checkbox(label = string(name))
+        #on(t -> plt[] = histogram(data[name]), observe(button_dict[name]))
+    end
+    vbox(values(dict)...)
 end
 
-function options_protocols(subdata)
-    empty!(protocol_dict)
-    for name in union(subdata[:Protocol])
-        protocol_dict[name] = checkbox(label = string(name))
-        #on(t -> plt[] = histogram(subdata[name]), observe(button_dict[name]))
+function options_genotypes(data)
+    dict = OrderedDict()
+    for name in union(data[:Gen])
+        dict[name] = checkbox(label = string(name))
+        #on(t -> plt[] = histogram(data[name]), observe(button_dict[name]))
     end
-    vbox(values(protocol_dict)...)
+    vbox(values(dict)...)
 end
 
-function options_genotypes(subdata)
-    empty!(genotype_dict)
-    for name in union(subdata[:Gen])
-        genotype_dict[name] = checkbox(label = string(name))
-        #on(t -> plt[] = histogram(subdata[name]), observe(button_dict[name]))
+function option_days(data)
+    dict = OrderedDict()
+    for day in sort(union(data[:Day]))
+        dict[string(day)] = string(day)
     end
-    vbox(values(genotype_dict)...)
-end
-
-function option_days(subdata)
-    empty!(days_dict)
-    for day in sort(union(subdata[:Day]))
-        days_dict[string(day)] = day
-    end
-    dropdown(days_dict)
+    dropdown(dict)
 end
